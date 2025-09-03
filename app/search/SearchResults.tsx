@@ -262,11 +262,11 @@ function MoreQuestionsSection({ query }: { query: string }) {
   const questions = generateRelatedQuestions(query)
 
   return (
-    <div className="mb-8 max-w-[652px] bg-[#303134] rounded-lg p-4">
+    <div className="mb-8 max-w-[652px] bg-[#303134] rounded-lg p-4 bg-transparent">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-medium text-[#e8eaed]">Más preguntas</h3>
         <button className="p-1 hover:bg-[#3c4043] rounded-full">
-          <MoreHorizontal className="w-5 h-5 text-[#9aa0a6]" />
+          <MoreHorizontal className="w-5 h-5 text-[#9aa0a6] justify-center" />
         </button>
       </div>
 
@@ -283,7 +283,7 @@ function MoreQuestionsSection({ query }: { query: string }) {
       </div>
 
       <div className="flex justify-end mt-4">
-        <button className="text-sm text-[#8ab4f8] hover:underline">Sugerencias</button>
+        <button className="text-sm text-[#8ab4f8] hover:underline text-[rgba(158,158,158,1)]">Sugerencias</button>
       </div>
     </div>
   )
@@ -325,7 +325,7 @@ export default function SearchResults() {
   }, [query])
 
   return (
-    <div className="min-h-screen bg-[#202124] text-[#e8eaed]">
+    <div className="min-h-screen bg-[#202124] text-[#e8eaed] bg-transparent">
       <header className="sticky top-0 z-50 bg-[#202124]">
         <div className="flex items-center px-6 pt-3 pb-0">
           <div className="flex items-center flex-grow max-w-[692px] gap-3">
@@ -353,13 +353,13 @@ export default function SearchResults() {
                 </div>
                 <div className="flex items-center px-4 gap-3">
                   <button className="p-1 hover:bg-[#3c4043] rounded-full">
-                    <Mic className="w-5 h-5 text-[#8ab4f8]" />
+                    <Mic className="w-5 h-5 text-[#8ab4f8] text-gray-400" />
                   </button>
                   <button className="p-1 hover:bg-[#3c4043] rounded-full">
-                    <Camera className="w-5 h-5 text-[#8ab4f8]" />
+                    <Camera className="w-5 h-5 text-[#8ab4f8] text-gray-400" />
                   </button>
                   <button className="p-1 hover:bg-[#3c4043] rounded-full">
-                    <Search className="w-5 h-5 text-[#8ab4f8]" />
+                    <Search className="w-5 h-5 text-[#8ab4f8] text-gray-400" />
                   </button>
                 </div>
               </div>
@@ -406,7 +406,7 @@ export default function SearchResults() {
           </div>
         </div>
       </header>
-      <div className="py-4" style={{ paddingLeft: "164px", paddingRight: "24px" }}>
+      <div className="py-4 bg-[rgba(32,33,36,1)]" style={{ paddingLeft: "164px", paddingRight: "24px" }}>
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8ab4f8]"></div>
