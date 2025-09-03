@@ -1,7 +1,9 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Search, Mic, Camera, Grid, X, ChevronDown, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -291,10 +293,28 @@ function MoreQuestionsSection({ query }: { query: string }) {
 
 export default function SearchResults() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const query = searchParams.get("q") || ""
+  const [searchQuery, setSearchQuery] = useState(query)
   const [results, setResults] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Update searchQuery when URL query changes
+  useEffect(() => {
+    setSearchQuery(query)
+  }, [query])
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim() && searchQuery.trim() !== query) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+    }
+  }
+
+  const handleClearSearch = () => {
+    setSearchQuery("")
+  }
 
   useEffect(() => {
     async function fetchResults() {
@@ -325,7 +345,7 @@ export default function SearchResults() {
   }, [query])
 
   return (
-    <div className="min-h-screen bg-[#202124] text-[#e8eaed] bg-transparent">
+    <div className="min-h-screen bg-[#202124] text-[#e8eaed]">
       <header className="sticky top-0 z-50 bg-[#202124]">
         <div className="flex items-center px-6 pt-3 pb-0">
           <div className="flex items-center flex-grow max-w-[692px] gap-3">
@@ -340,29 +360,39 @@ export default function SearchResults() {
               />
             </Link>
             <div className="flex-grow">
-              <div className="flex items-center w-full bg-[#303134] rounded-[24px] hover:bg-[#303134]/90 border border-[#5f6368] hover:border-[#8f939b] hover:shadow-md border-none h-auto text-[rgba(77,81,86,1)]">
-                <div className="flex-grow flex items-center min-w-0 px-4 py-3">
-                  <input
-                    type="text"
-                    defaultValue={query}
-                    className="flex-grow min-w-0 bg-transparent text-[#e8eaed] text-base outline-none"
-                  />
-                  <button className="p-1 hover:bg-[#3c4043] rounded-full ml-2">
-                    <X className="w-5 h-5 text-[#9aa0a6]" />
-                  </button>
+              <form onSubmit={handleSearch}>
+                <div className="flex items-center w-full bg-[#303134] rounded-[24px] hover:bg-[#303134]/90 border border-[#5f6368] hover:border-[#8f939b] hover:shadow-md border-none h-auto text-[rgba(77,81,86,1)]">
+                  <div className="flex-grow flex items-center min-w-0 px-4 py-3">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="flex-grow min-w-0 bg-transparent text-[#e8eaed] text-base outline-none"
+                      placeholder="Buscar en Google o escribir una URL"
+                    />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={handleClearSearch}
+                        className="p-1 hover:bg-[#3c4043] rounded-full ml-2"
+                      >
+                        <X className="w-5 h-5 text-[#9aa0a6]" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center px-4 gap-3">
+                    <button type="button" className="p-1 hover:bg-[#3c4043] rounded-full">
+                      <Mic className="w-5 h-5 text-[#8ab4f8] text-gray-400" />
+                    </button>
+                    <button type="button" className="p-1 hover:bg-[#3c4043] rounded-full">
+                      <Camera className="w-5 h-5 text-[#8ab4f8] text-gray-400" />
+                    </button>
+                    <button type="submit" className="p-1 hover:bg-[#3c4043] rounded-full">
+                      <Search className="w-5 h-5 text-[#8ab4f8] text-gray-400" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center px-4 gap-3">
-                  <button className="p-1 hover:bg-[#3c4043] rounded-full">
-                    <Mic className="w-5 h-5 text-[#8ab4f8] text-gray-400" />
-                  </button>
-                  <button className="p-1 hover:bg-[#3c4043] rounded-full">
-                    <Camera className="w-5 h-5 text-[#8ab4f8] text-gray-400" />
-                  </button>
-                  <button className="p-1 hover:bg-[#3c4043] rounded-full">
-                    <Search className="w-5 h-5 text-[#8ab4f8] text-gray-400" />
-                  </button>
-                </div>
-              </div>
+              </form>
             </div>
           </div>
           <div className="flex items-center ml-auto gap-2">
@@ -406,7 +436,7 @@ export default function SearchResults() {
           </div>
         </div>
       </header>
-      <div className="py-4 bg-[rgba(32,33,36,1)]" style={{ paddingLeft: "164px", paddingRight: "24px" }}>
+      <div className="py-4" style={{ paddingLeft: "164px", paddingRight: "24px" }}>
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8ab4f8]"></div>
@@ -425,7 +455,7 @@ export default function SearchResults() {
               const description = index < results.length ? results[index] : getRandomLoremIpsum()
 
               return (
-                <div key={index}>
+                <div className="" key={index}>
                   {/* Insert "Más preguntas" section after the 3rd result */}
                   {index === 3 && <MoreQuestionsSection query={query} />}
 
