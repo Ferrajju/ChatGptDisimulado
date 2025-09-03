@@ -301,7 +301,7 @@ export default function SearchResults() {
           </div>
         </div>
       </header>
-      <div className="px-6 py-4">
+      <div className="py-4" style={{ paddingLeft: "164px", paddingRight: "24px" }}>
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8ab4f8]"></div>
