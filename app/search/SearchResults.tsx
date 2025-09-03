@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Search, Mic, Camera, Grid, X, ChevronDown, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
@@ -68,8 +68,8 @@ const loremIpsumVariations = [
   "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.",
 ]
 
-function getRandomLoremIpsum(): string {
-  return loremIpsumVariations[Math.floor(Math.random() * loremIpsumVariations.length)]
+function getRandomLoremIpsum(seed: number): string {
+  return loremIpsumVariations[seed % loremIpsumVariations.length]
 }
 
 function generateFakeUrl(query: string, index: number): string {
@@ -133,8 +133,8 @@ function generateFakeUrl(query: string, index: number): string {
   ]
 
   const domain = domains[index % domains.length]
-  const path = paths[Math.floor(Math.random() * paths.length)]
-  const subpath = subpaths[Math.floor(Math.random() * subpaths.length)]
+  const path = paths[Math.floor((index * 7) % paths.length)] // Use deterministic selection
+  const subpath = subpaths[Math.floor((index * 11) % subpaths.length)] // Use deterministic selection
   const sanitizedQuery = query.toLowerCase().replace(/\s+/g, "-")
 
   return `https://www.${domain}/${path}/${sanitizedQuery}-${subpath}`
@@ -210,7 +210,7 @@ function generateUniqueTitle(query: string, index: number, isRealResult: boolean
   ]
 
   const prefix = prefixes[index % prefixes.length]
-  const suffix = suffixes[Math.floor(Math.random() * suffixes.length)]
+  const suffix = suffixes[Math.floor((index * 13) % suffixes.length)] // Use deterministic selection
 
   // For demo mode, use "inteligencia artificial" as the topic
   const displayQuery = query.toLowerCase() === "demo" ? "inteligencia artificial" : query
@@ -315,6 +315,24 @@ export default function SearchResults() {
   const handleClearSearch = () => {
     setSearchQuery("")
   }
+
+  // Memoize the search results data to prevent random changes when typing
+  const searchResultsData = useMemo(() => {
+    const totalResults = Math.max(20, results.length + 10)
+    return Array.from({ length: totalResults }, (_, index) => {
+      const siteName = generateSiteName(index)
+      const url = generateFakeUrl(query, index)
+      const title = generateUniqueTitle(query, index, index < results.length)
+      const description = index < results.length ? results[index] : getRandomLoremIpsum(index)
+
+      return {
+        siteName,
+        url,
+        title,
+        description,
+      }
+    })
+  }, [query, results]) // Only recalculate when query or results change, not when searchQuery changes
 
   useEffect(() => {
     async function fetchResults() {
@@ -448,33 +466,26 @@ export default function SearchResults() {
         ) : (
           <>
             <p className="text-sm text-[#9aa0a6] mb-4">Cerca de {results.length + 15} resultados</p>
-            {[...Array(Math.max(20, results.length + 10))].map((_, index) => {
-              const siteName = generateSiteName(index)
-              const url = generateFakeUrl(query, index)
-              const title = generateUniqueTitle(query, index, index < results.length)
-              const description = index < results.length ? results[index] : getRandomLoremIpsum()
+            {searchResultsData.map((result, index) => (
+              <div className="" key={index}>
+                {/* Insert "Más preguntas" section after the 3rd result */}
+                {index === 3 && <MoreQuestionsSection query={query} />}
 
-              return (
-                <div className="" key={index}>
-                  {/* Insert "Más preguntas" section after the 3rd result */}
-                  {index === 3 && <MoreQuestionsSection query={query} />}
+                <div className="mb-6 max-w-[652px]">
+                  {/* Site name without icon */}
+                  <div className="text-sm text-[#bdc1c6] mb-1">{result.siteName}</div>
 
-                  <div className="mb-6 max-w-[652px]">
-                    {/* Site name without icon */}
-                    <div className="text-sm text-[#bdc1c6] mb-1">{siteName}</div>
+                  {/* URL */}
+                  <div className="text-sm text-[#9aa0a6] mb-1">{result.url}</div>
 
-                    {/* URL */}
-                    <div className="text-sm text-[#9aa0a6] mb-1">{url}</div>
+                  {/* Title */}
+                  <h2 className="text-xl text-[#8ab4f8] hover:underline cursor-pointer mb-1">{result.title}</h2>
 
-                    {/* Title */}
-                    <h2 className="text-xl text-[#8ab4f8] hover:underline cursor-pointer mb-1">{title}</h2>
-
-                    {/* Description */}
-                    <p className="text-sm leading-5 text-[#bdc1c6]">{description}</p>
-                  </div>
+                  {/* Description */}
+                  <p className="text-sm leading-5 text-[#bdc1c6]">{result.description}</p>
                 </div>
-              )
-            })}
+              </div>
+            ))}
           </>
         )}
       </div>
