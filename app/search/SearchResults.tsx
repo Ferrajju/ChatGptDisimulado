@@ -126,6 +126,36 @@ function generateFakeUrl(query: string, index: number): string {
   return `https://www.${domain}/${path}/${sanitizedQuery}-${subpath}`
 }
 
+function generateSiteName(index: number): string {
+  const siteNames = [
+    "Wikipedia",
+    "Enciclopedia",
+    "Definiciones",
+    "Conceptos",
+    "Academia",
+    "Ciencia Info",
+    "Conocimiento",
+    "Estudios",
+    "Investigación",
+    "Recursos",
+    "Biblioteca",
+    "Documentación",
+    "Referencias",
+    "Archivos",
+    "Repositorio",
+    "Datos",
+    "Información",
+    "Contenidos",
+    "Material",
+    "Documentos",
+  ]
+  return siteNames[index % siteNames.length]
+}
+
+function generateSiteIcon(siteName: string): string {
+  return siteName.charAt(0).toUpperCase()
+}
+
 function generateUniqueTitle(query: string, index: number, isRealResult: boolean): string {
   const prefixes = [
     "Guía completa:",
@@ -313,15 +343,34 @@ export default function SearchResults() {
         ) : (
           <>
             <p className="text-sm text-[#9aa0a6] mb-4">Cerca de {results.length + 15} resultados</p>
-            {[...Array(Math.max(20, results.length + 10))].map((_, index) => (
-              <div key={index} className="mb-8 max-w-[652px]">
-                <div className="text-sm text-[#bdc1c6] mb-1">{generateFakeUrl(query, index)}</div>
-                <h2 className="text-xl text-[#8ab4f8] hover:underline cursor-pointer mb-1">
-                  {generateUniqueTitle(query, index, index < results.length)}
-                </h2>
-                <p className="text-sm leading-6">{index < results.length ? results[index] : getRandomLoremIpsum()}</p>
-              </div>
-            ))}
+            {[...Array(Math.max(20, results.length + 10))].map((_, index) => {
+              const siteName = generateSiteName(index)
+              const siteIcon = generateSiteIcon(siteName)
+              const url = generateFakeUrl(query, index)
+              const title = generateUniqueTitle(query, index, index < results.length)
+              const description = index < results.length ? results[index] : getRandomLoremIpsum()
+
+              return (
+                <div key={index} className="mb-6 max-w-[652px]">
+                  {/* Site name with icon */}
+                  <div className="flex items-center mb-1">
+                    <div className="w-6 h-6 bg-[#5f6368] rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-xs font-medium">{siteIcon}</span>
+                    </div>
+                    <span className="text-sm text-[#bdc1c6]">{siteName}</span>
+                  </div>
+
+                  {/* URL */}
+                  <div className="text-sm text-[#9aa0a6] mb-1 ml-9">{url}</div>
+
+                  {/* Title */}
+                  <h2 className="text-xl text-[#8ab4f8] hover:underline cursor-pointer mb-1 ml-9">{title}</h2>
+
+                  {/* Description */}
+                  <p className="text-sm leading-5 text-[#bdc1c6] ml-9">{description}</p>
+                </div>
+              )
+            })}
           </>
         )}
       </div>
