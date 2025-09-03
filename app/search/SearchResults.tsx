@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
-import { Search, Mic, Camera, Grid, X, ChevronDown } from "lucide-react"
+import { Search, Mic, Camera, Grid, X, ChevronDown, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -152,10 +152,6 @@ function generateSiteName(index: number): string {
   return siteNames[index % siteNames.length]
 }
 
-function generateSiteIcon(siteName: string): string {
-  return siteName.charAt(0).toUpperCase()
-}
-
 function generateUniqueTitle(query: string, index: number, isRealResult: boolean): string {
   const prefixes = [
     "Guía completa:",
@@ -205,6 +201,21 @@ function generateUniqueTitle(query: string, index: number, isRealResult: boolean
   return isRealResult ? `${prefix} ${query} - ${suffix}` : `${prefix} ${query}`
 }
 
+function generateRelatedQuestions(query: string): string[] {
+  const questionTemplates = [
+    `¿Qué es ${query} y para qué sirve?`,
+    `¿Qué es ${query}?`,
+    `¿Para qué se utiliza ${query}?`,
+    `¿Quién es el dueño de ${query}?`,
+    `¿Cómo funciona ${query}?`,
+    `¿Cuáles son las características de ${query}?`,
+    `¿Dónde se puede encontrar ${query}?`,
+    `¿Cuándo se creó ${query}?`,
+  ]
+
+  return questionTemplates.slice(0, 4).map((template) => template)
+}
+
 function splitResponseIntoFragments(response: string): string[] {
   return response
     .split(/(?<=[.!?])\s+/)
@@ -221,6 +232,37 @@ const SEARCH_CATEGORIES = [
   { name: "Web", href: "#", active: false },
   { name: "Libros", href: "#", active: false },
 ]
+
+function MoreQuestionsSection({ query }: { query: string }) {
+  const questions = generateRelatedQuestions(query)
+
+  return (
+    <div className="mb-8 max-w-[652px] bg-[#303134] rounded-lg p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-medium text-[#e8eaed]">Más preguntas</h3>
+        <button className="p-1 hover:bg-[#3c4043] rounded-full">
+          <MoreHorizontal className="w-5 h-5 text-[#9aa0a6]" />
+        </button>
+      </div>
+
+      <div className="space-y-0">
+        {questions.map((question, index) => (
+          <div key={index}>
+            <button className="w-full flex items-center justify-between py-3 text-left hover:bg-[#3c4043] rounded px-2 -mx-2">
+              <span className="text-[#e8eaed] text-base">{question}</span>
+              <ChevronDown className="w-4 h-4 text-[#9aa0a6] flex-shrink-0 ml-4" />
+            </button>
+            {index < questions.length - 1 && <div className="border-b border-[#3c4043]"></div>}
+          </div>
+        ))}
+      </div>
+
+      <div className="flex justify-end mt-4">
+        <button className="text-sm text-[#8ab4f8] hover:underline">Sugerencias</button>
+      </div>
+    </div>
+  )
+}
 
 export default function SearchResults() {
   const searchParams = useSearchParams()
@@ -345,29 +387,28 @@ export default function SearchResults() {
             <p className="text-sm text-[#9aa0a6] mb-4">Cerca de {results.length + 15} resultados</p>
             {[...Array(Math.max(20, results.length + 10))].map((_, index) => {
               const siteName = generateSiteName(index)
-              const siteIcon = generateSiteIcon(siteName)
               const url = generateFakeUrl(query, index)
               const title = generateUniqueTitle(query, index, index < results.length)
               const description = index < results.length ? results[index] : getRandomLoremIpsum()
 
               return (
-                <div key={index} className="mb-6 max-w-[652px]">
-                  {/* Site name with icon */}
-                  <div className="flex items-center mb-1">
-                    <div className="w-6 h-6 bg-[#5f6368] rounded-full flex items-center justify-center mr-3">
-                      <span className="text-white text-xs font-medium">{siteIcon}</span>
-                    </div>
-                    <span className="text-sm text-[#bdc1c6]">{siteName}</span>
+                <div key={index}>
+                  {/* Insert "Más preguntas" section after the 3rd result */}
+                  {index === 3 && <MoreQuestionsSection query={query} />}
+
+                  <div className="mb-6 max-w-[652px]">
+                    {/* Site name without icon */}
+                    <div className="text-sm text-[#bdc1c6] mb-1">{siteName}</div>
+
+                    {/* URL */}
+                    <div className="text-sm text-[#9aa0a6] mb-1">{url}</div>
+
+                    {/* Title */}
+                    <h2 className="text-xl text-[#8ab4f8] hover:underline cursor-pointer mb-1">{title}</h2>
+
+                    {/* Description */}
+                    <p className="text-sm leading-5 text-[#bdc1c6]">{description}</p>
                   </div>
-
-                  {/* URL */}
-                  <div className="text-sm text-[#9aa0a6] mb-1 ml-9">{url}</div>
-
-                  {/* Title */}
-                  <h2 className="text-xl text-[#8ab4f8] hover:underline cursor-pointer mb-1 ml-9">{title}</h2>
-
-                  {/* Description */}
-                  <p className="text-sm leading-5 text-[#bdc1c6] ml-9">{description}</p>
                 </div>
               )
             })}
