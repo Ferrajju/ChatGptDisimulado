@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect, useMemo } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { Search, Mic, Camera, Grid, X, ChevronDown, MoreHorizontal } from "lucide-react"
+import { Search, Mic, Camera, Grid, X, ChevronDown, MoreHorizontal, Home } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -291,6 +291,88 @@ function MoreQuestionsSection({ query }: { query: string }) {
   )
 }
 
+function InstructionsPanel() {
+  return (
+    <div className="flex justify-center items-start py-12">
+      <div className="bg-white rounded-lg shadow-lg p-8 max-w-2xl mx-4">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+          🤖 DisimulateGPT - ChatGPT Escondido en Google
+        </h2>
+
+        <div className="space-y-4 text-gray-700 leading-relaxed">
+          <p>
+            <strong>¡Descubre el secreto!</strong> Este no es Google real, es <strong>ChatGPT disfrazado</strong> con la
+            interfaz de Google Search. Una forma ingeniosa de usar inteligencia artificial sin que nadie se dé cuenta.
+          </p>
+
+          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+            <h3 className="font-semibold text-blue-800 mb-2">🎭 El Disfraz Perfecto:</h3>
+            <ul className="list-disc list-inside space-y-1 text-blue-700">
+              <li>Interfaz 100% idéntica a Google Search</li>
+              <li>ChatGPT trabajando en segundo plano</li>
+              <li>Resultados de búsqueda completamente falsos pero realistas</li>
+              <li>Nadie sospechará que es IA generativa</li>
+            </ul>
+          </div>
+
+          <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-400">
+            <h3 className="font-semibold text-green-800 mb-2">🕵️ Cómo Funciona el Engaño:</h3>
+            <ul className="list-disc list-inside space-y-1 text-green-700">
+              <li>
+                <strong>Haz cualquier pregunta:</strong> ChatGPT la responde pero la disfraza como "resultados de
+                búsqueda"
+              </li>
+              <li>
+                <strong>La respuesta real:</strong> Aparece debajo de los resultados de búsqueda como texto gris
+              </li>
+              <li>
+                <strong>Títulos únicos:</strong> Cada "resultado" tiene un título diferente y convincente
+              </li>
+            </ul>
+          </div>
+
+          <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-400">
+            <h3 className="font-semibold text-red-800 mb-2">🎯 La Magia del Sistema:</h3>
+            <p className="text-red-700 mb-2">
+              Cuando escribes una pregunta, ChatGPT genera una respuesta completa y luego el sistema la divide en
+              fragmentos que aparecen como diferentes "sitios web". ¡Es como tener un ChatGPT invisible!
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-red-700">
+              <li>Una respuesta de ChatGPT = Múltiples "resultados de búsqueda"</li>
+              <li>Sitios web falsos con nombres convincentes</li>
+              <li>Descripciones que parecen extractos reales</li>
+            </ul>
+          </div>
+
+          <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
+            <h3 className="font-semibold text-purple-800 mb-2">🏠 Navegación:</h3>
+            <p className="text-purple-700">
+              <strong>Para volver a la pantalla inicial:</strong> Debes hacer clic en el logo de Google blanco que está
+              arriba en la esquina izquierda de la pantalla.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 pt-4 border-t border-gray-200 text-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+          >
+            <Home className="w-5 h-5" />
+            Volver a la Pantalla Inicial
+          </Link>
+        </div>
+
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-500">
+            🎭 <strong>Ahora que conoces el truco:</strong> Úsalo para impresionar a tus amigos con este "Google mágico"
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function SearchResults() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -341,8 +423,14 @@ export default function SearchResults() {
       setError(null)
 
       try {
+        // Check if query is "instrucciones" - show instructions instead
+        if (query.toLowerCase() === "instrucciones") {
+          // Simulate loading time
+          await new Promise((resolve) => setTimeout(resolve, 500))
+          setResults([]) // No results needed for instructions
+        }
         // Check if query is "demo" - use predefined responses instead of ChatGPT
-        if (query.toLowerCase() === "demo") {
+        else if (query.toLowerCase() === "demo") {
           // Simulate loading time
           await new Promise((resolve) => setTimeout(resolve, 1000))
           setResults(demoResponses)
@@ -463,6 +551,8 @@ export default function SearchResults() {
           <div className="text-red-400 mb-4">
             <p>Error: {error}</p>
           </div>
+        ) : query.toLowerCase() === "instrucciones" ? (
+          <InstructionsPanel />
         ) : (
           <>
             <p className="text-sm text-[#9aa0a6] mb-4">Cerca de {results.length + 15} resultados</p>
