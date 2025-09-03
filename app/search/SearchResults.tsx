@@ -35,6 +35,18 @@ async function getChatGPTResponse(query: string): Promise<string> {
   }
 }
 
+// Demo responses for when query is "demo"
+const demoResponses = [
+  "La inteligencia artificial (IA) es una rama de la informática que se centra en crear sistemas capaces de realizar tareas que normalmente requieren inteligencia humana.",
+  "Los algoritmos de machine learning permiten a las máquinas aprender y mejorar automáticamente a través de la experiencia sin ser programadas explícitamente para cada tarea específica.",
+  "El procesamiento de lenguaje natural (NLP) es una subdisciplina de la IA que se enfoca en la interacción entre computadoras y lenguajes humanos, permitiendo que las máquinas comprendan, interpreten y generen texto humano.",
+  "Las redes neuronales artificiales están inspiradas en el funcionamiento del cerebro humano y consisten en capas interconectadas de nodos que procesan información de manera similar a las neuronas.",
+  "El deep learning utiliza redes neuronales profundas con múltiples capas ocultas para modelar y entender patrones complejos en grandes conjuntos de datos.",
+  "Los sistemas de visión por computadora permiten a las máquinas interpretar y analizar contenido visual del mundo real, incluyendo imágenes y videos.",
+  "La automatización inteligente combina IA con tecnologías de automatización para crear sistemas que pueden tomar decisiones y ejecutar tareas complejas de forma autónoma.",
+  "Los chatbots y asistentes virtuales utilizan técnicas de IA para mantener conversaciones naturales con usuarios y proporcionar respuestas útiles y contextualmente relevantes.",
+]
+
 // Expanded Lorem Ipsum variations for more natural-looking results
 const loremIpsumVariations = [
   // Very short (30-50 chars)
@@ -198,10 +210,23 @@ function generateUniqueTitle(query: string, index: number, isRealResult: boolean
   const prefix = prefixes[index % prefixes.length]
   const suffix = suffixes[Math.floor(Math.random() * suffixes.length)]
 
-  return isRealResult ? `${prefix} ${query} - ${suffix}` : `${prefix} ${query}`
+  // For demo mode, use "inteligencia artificial" as the topic
+  const displayQuery = query.toLowerCase() === "demo" ? "inteligencia artificial" : query
+
+  return isRealResult ? `${prefix} ${displayQuery} - ${suffix}` : `${prefix} ${displayQuery}`
 }
 
 function generateRelatedQuestions(query: string): string[] {
+  // For demo mode, use predefined questions about AI
+  if (query.toLowerCase() === "demo") {
+    return [
+      "¿Qué es la inteligencia artificial y para qué sirve?",
+      "¿Qué es machine learning?",
+      "¿Para qué se utiliza el deep learning?",
+      "¿Quién inventó la inteligencia artificial?",
+    ]
+  }
+
   const questionTemplates = [
     `¿Qué es ${query} y para qué sirve?`,
     `¿Qué es ${query}?`,
@@ -276,10 +301,18 @@ export default function SearchResults() {
       if (!query) return
       setIsLoading(true)
       setError(null)
+
       try {
-        const response = await getChatGPTResponse(query)
-        const fragments = splitResponseIntoFragments(response)
-        setResults(fragments)
+        // Check if query is "demo" - use predefined responses instead of ChatGPT
+        if (query.toLowerCase() === "demo") {
+          // Simulate loading time
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+          setResults(demoResponses)
+        } else {
+          const response = await getChatGPTResponse(query)
+          const fragments = splitResponseIntoFragments(response)
+          setResults(fragments)
+        }
       } catch (error) {
         console.error("Error fetching results:", error)
         setError(error instanceof Error ? error.message : "Error al procesar tu consulta")
